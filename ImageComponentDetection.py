@@ -3,8 +3,11 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-import json
 import pandas as pd
+
+
+# Load a pre-trained object detection model
+MODEL = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=True)
 
 
 def load_image(image_file):
@@ -18,7 +21,11 @@ def load_image(image_file):
     Image: An Image object representing the loaded image.
     """
     img = Image.open(image_file)
-    return img
+    
+    # Ensure the image is in RGB format
+    image = img.convert("RGB")
+    
+    return image
 
 
 def classify_image(image):
@@ -37,9 +44,6 @@ def classify_image(image):
     # Dictionary to hold labels and predictions
     lbl_dict = {'Components': [],
                 'Confidence': []}
-    
-    # Ensure the image is in RGB format
-    image = image.convert("RGB")
     
     # Resize the image to the required input size for MobileNetV2
     image = image.resize((224, 224))
@@ -63,14 +67,6 @@ def classify_image(image):
     
     # Return dictionary of the component names and confidence scores
     return lbl_dict
-
-# Load a pre-trained object detection model
-MODEL = tf.keras.applications.MobileNetV2(weights='imagenet', include_top=True)
-LABELS_PATH = tf.keras.utils.get_file('imagenet_class_index.json', 'https://storage.googleapis.com/download.tensorflow.org/data/imagenet_class_index.json')
-
-
-with open(LABELS_PATH, 'r') as f:
-    LABELS = json.load(f)
 
 
 # Streamlit app layout
